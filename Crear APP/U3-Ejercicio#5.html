@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vue JS</title>
+</head>
+<body>
+    <!-- Universidad Autonoma de Baja California Sur
+    Ingeniero en Desarrollo de Software
+    Programación Avanzada Internet 
+    Jose Manuel Benitez Perez, IDS 7tmo T.V -->
+
+    <div class="container" id="container_app">
+        <button @click="count++">
+            Click me {{ count }}
+        </button>
+        <br>
+        <h1>
+            Hola {{ username }}
+        </h1>
+        <input type="text" v-model="username" name="">
+        <br>
+        <input type="text" v-model="num1" name="">
+        <input type="text" v-model="num2" name="">
+        <button @click="hi()">
+            Sumar
+        </button>
+        <h1>
+            Resultado: {{ result }}
+        </h1>
+    </div>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script type="text/javascript">
+        const { createApp, ref } = Vue;
+        createApp({
+            setup() {
+                const username = ref('');
+                const num1 = ref(0);
+                const num2 = ref(0);
+                const result = ref(0);
+                return {
+                    count: ref(0),
+                    username,
+                    num1,
+                    num2,
+                    result
+                };
+            },
+            methods: {
+                hi() {
+                    this.result = (+this.num1) + (+this.num2);
+                }
+            }
+        }).mount("#container_app");
+    </script>
+</body>
+</html>

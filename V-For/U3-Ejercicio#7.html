@@ -18,17 +18,25 @@
             <legend>
                 Name(s):
             </legend>
-            <input type="" v-model= placeholder="Write Here" name="">
+            <input type="" v-model= "new_name" placeholder="Write Here" name="">
             </fieldset>
 
             <fieldset>
                 <legend>
-                    Apellido(s):
+                    Lastname(s):
                 </legend>
-                <input type="" placeholder="" name="">
+                <input type=""  v-model = "new_lastname"placeholder="Write here" name="">
             </fieldset>
-
+            <button type = "button" @click="savePerson"> save data</button>
         </form>
+
+        <ol>
+          <li v-for="person in people"> <!-- Cambiado a 'people' -->
+            {{ person.name }} {{ person.lastname }}
+          </li>
+        </ol>
+
+        <hr>
 
         <button @click="count++">
             Click me {{ count }}
@@ -57,12 +65,33 @@
                 const num1 = ref(0);
                 const num2 = ref(0);
                 const result = ref(0);
+                const new_name = ref('');
+                const new_lastname = ref('');
+
+                const people = ref([]);
+
+                const savePerson = () => {
+                    if (new_name.value && new_lastname.value) {
+                        let person = {
+                            name: new_name.value,
+                            lastname: new_lastname.value
+                        };
+                        people.value.push(person);
+                        new_name.value = '';
+                        new_lastname.value = '';
+                    }
+                };
+
                 return {
                     count: ref(0),
                     username,
                     num1,
                     num2,
-                    result
+                    result,
+                    new_name,
+                    new_lastname,
+                    people,
+                    savePerson
                 };
             },
             methods: {

@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Iniciar Sesión con Local Storage</title>
+</head>
+
+<body>
+    <!-- Universidad Autonoma de Baja California Sur
+    Ingeniero en Desarrollo de Software
+    Programación Avanzada Internet 
+    Jose Manuel Benitez Perez, IDS 7tmo T.V -->
+    <div id="app">
+        <div v-if="!usuarioLogueado">
+            <h2>Iniciar Sesión</h2>
+            <form @submit.prevent="iniciarSesion">
+                <div>
+                    <label for="correo">Correo Electrónico:</label>
+                    <input type="email" id="correo" v-model="usuario.correo" required>
+                </div>
+                <div>
+                    <label for="contraseña">Contraseña:</label>
+                    <input type="password" id="contraseña" v-model="usuario.contraseña" required>
+                </div>
+                <button type="submit">Iniciar Sesión</button>
+            </form>
+            <p v-if="mensaje">{{ mensaje }}</p>
+        </div>
+        <p v-else>Bienvenido, {{ usuarioLogueado }}</p>
+
+        <button @click="cerrarSesion" v-if="usuarioLogueado">Cerrar sesión</button>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.6.14/dist/vue.js"></script>
+    <script>
+        new Vue({
+            el: '#app',
+            data: {
+                usuario: {
+                    correo: '',
+                    contraseña: ''
+                },
+                mensaje: '',
+                usuarioLogueado: null,
+                usuarios: []
+            },
+            created() {
+                fetch('usuarios.json')
+                    .then(response => response.json())
+                    .then(data => {
+                        this.usuarios = data.usuarios.map(usuario => ({
+                            correo: usuario.correo,
+                            contraseña: usuario.contraseña
+                        }));
+                    })
+                    .catch(error => console.error('Error al cargar usuarios:', error));
+
+                const usuarioGuardado = localStorage.getItem('usuario');
+                if (usuarioGuardado) {
+                    this.usuarioLogueado = usuarioGuardado;
+                }
+            },
+            methods: {
+                iniciarSesion() {
+                    const usuarioEncontrado = this.usuarios.find(user =>
+                        user.correo === this.usuario.correo && user.contraseña === this.usuario.contraseña
+                    );
+
+                    if (usuarioEncontrado) {
+                        this.mensaje = 'Inicio de sesión exitoso';
+                        localStorage.setItem('usuario', usuarioEncontrado.correo);
+                        this.usuarioLogueado = usuarioEncontrado.correo;
+                        this.usuario = { correo: '', contraseña: '' };
+                    } else {
+                        this.mensaje = 'Credenciales incorrectas';
+                    }
+                },
+                cerrarSesion() {
+                    localStorage.removeItem('usuario');
+                    this.usuarioLogueado = null;
+                    this.usuario = { correo: '', contraseña: '' };
+                    this.mensaje = '';
+                }
+            }
+        });
+    </script>
+</body>
+
+</html>

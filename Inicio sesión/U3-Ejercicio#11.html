@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Iniciar Sesión con Vue.js</title>
+</head>
+<body>
+    <!-- Universidad Autonoma de Baja California Sur
+    Ingeniero en Desarrollo de Software
+    Programación Avanzada Internet 
+    Jose Manuel Benitez Perez, IDS 7tmo T.V -->
+
+    <div id="app">
+        <h2>Iniciar Sesión</h2>
+        <login-form :usuarios="usuarios"></login-form>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.6.14/dist/vue.js"></script>
+    <script>
+        Vue.component('login-form', {
+            props: ['usuarios'],
+            data() {
+                return {
+                    usuario: {
+                        correo: '',
+                        contraseña: ''
+                    },
+                    mensaje: ''
+                };
+            },
+            methods: {
+                iniciarSesion() {
+                    if (this.usuario.correo && this.usuario.contraseña) {
+                        const usuarioEncontrado = this.usuarios.find(user => user.correo === this.usuario.correo && user.contraseña === this.usuario.contraseña);
+
+                        if (usuarioEncontrado) {
+                            this.mensaje = "Bienvenido";
+                        } else {
+                            this.mensaje = "Credenciales incorrectas";
+                        }
+                    } else {
+                        this.mensaje = "Por favor, complete ambos campos";
+                    }
+                }
+            },
+            template: `
+                <div>
+                    <form @submit.prevent="iniciarSesion">
+                        <div>
+                            <label for="correo">Correo Electrónico:</label>
+                            <input type="email" id="correo" v-model="usuario.correo" required>
+                        </div>
+                        <div>
+                            <label for="contraseña">Contraseña:</label>
+                            <input type="password" id="contraseña" v-model="usuario.contraseña" required>
+                        </div>
+                        <button type="submit">Iniciar Sesión</button>
+                    </form>
+                    <p v-if="mensaje">{{ mensaje }}</p>
+                </div>
+            `
+        });
+
+        new Vue({
+            el: '#app',
+            data: {
+                usuarios: []
+            },
+            mounted() {
+                fetch('usuarios.json')
+                    .then(response => response.json())
+                    .then(data => {
+                        this.usuarios = data.usuarios.map(usuario => ({
+                            correo: usuario.correo,
+                            contraseña: usuario.contraseña
+                        }));
+                    })
+                    .catch(error => console.error('Error al cargar usuarios:', error));
+            }
+        });
+    </script>
+</body>
+</html>

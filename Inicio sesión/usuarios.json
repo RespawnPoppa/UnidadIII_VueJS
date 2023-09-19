@@ -1,0 +1,16 @@
+{
+    "usuarios": [
+      {
+        "correo": "jbenitez_20@alu.uabcs.mx",
+        "contraseña": "1234"
+      },
+      {
+        "correo": "martin@gmail.com",
+        "contraseña": "1234"
+      },
+      {
+        "correo": "german@gmail.com",
+        "contraseña": "1234"
+      }
+    ]
+  }

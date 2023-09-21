@@ -1,0 +1,40 @@
+{
+  "usuarios": [
+    {
+      "correo": "jbenitez_20@alu.uabcs.mx",
+      "contraseña": "1234",
+      "telefono": "123-456-7890",
+      "compania": "Amazon",
+      "direccion": "123 Calle Principal, Ciudad Ejemplo"
+    },
+    {
+      "correo": "martin@gmail.com",
+      "contraseña": "1234",
+      "telefono": "987-654-3210",
+      "compania": "Pokemon Company",
+      "direccion": "456 Avenida Secundaria, Otra Ciudad"
+    },
+    {
+      "correo": "german@gmail.com",
+      "contraseña": "1234",
+      "telefono": "555-555-5555",
+      "compania": "Sony Pictures",
+      "direccion": "789 Calle XYZ, Ciudad XYZ"
+    },
+    {
+      "correo": "katia@gmail.com",
+      "contraseña": "1234",
+      "telefono": "535-765-3215",
+      "compania": "Disney Company",
+      "direccion": "789 Calle XYZ, Ciudad XYZ"
+    },
+    {
+      "correo": "manuel@gmail.com",
+      "contraseña": "1234",
+      "telefono": "221-765-3225",
+      "compania": "Riot Games",
+      "direccion": "789 Calle XYZ, Ciudad Angeles"
+    }
+    
+  ]
+}

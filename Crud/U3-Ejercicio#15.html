@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crud</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <!-- Universidad Autonoma de Baja California Sur
+    Ingeniero en Desarrollo de Software
+    Programación Avanzada Internet 
+    Jose Manuel Benitez Perez, IDS 7tmo T.V -->
+    <div id="app">
+        <div v-if="!usuarioLogueado" class="form-login">
+            <h5>Iniciar Sesión</h5>
+            <form @submit.prevent="iniciarSesion">
+                <div class="controls">
+                    <label for="correo">Correo Electrónico:</label>
+                    <input type="email" id="correo" v-model="usuario.correo" required>
+                </div>
+                <div class="controls">
+                    <label for="contraseña">Contraseña:</label>
+                    <input type="password" id="contraseña" v-model="usuario.contraseña" required>
+                </div>
+                <button class="buttons" type="submit">Iniciar Sesión</button>
+            </form>
+            <p v-if="mensaje">{{ mensaje }}</p>
+        </div>
+        <div v-else class="content-container">
+            <p>Bienvenido, {{ usuarioLogueado }}</p>
+
+            <button class="button" @click="cerrarSesion">Cerrar sesión</button>
+
+            <button class="button" @click="toggleTabla">{{ mostrarTabla ? 'Ocultar Tabla' : 'Mostrar Tabla' }}</button>
+
+            <table class="demo" v-if="mostrarTabla">
+                <caption>Tabla de registros</caption>
+                <thead>
+                    <tr>
+                        <th>Correo</th>
+                        <th>Teléfono</th>
+                        <th>Compañía</th>
+                        <th>Dirección</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr v-for="(usuario, index) in usuarios" :key="index">
+                        <td>{{ usuario.correo }}</td>
+                        <td>{{ usuario.telefono }}</td>
+                        <td>{{ usuario.compania }}</td>
+                        <td>{{ usuario.direccion }}</td>
+                        <td>
+                            <button @click="editarUsuario(index)">Editar</button>
+                            <button @click="eliminarUsuario(index)">Eliminar</button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <button class="button" @click="mostrarFormulario">Agregar usuario</button>
+            <form v-if="mostrarForm" @submit.prevent="guardarEdicionUsuario">
+                <div class="controls">
+                    <label for="nuevoCorreo">Correo Electrónico:</label>
+                    <input type="email" id="nuevoCorreo" v-model="nuevoUsuario.correo" required>
+                </div>
+                <div class="controls">
+                    <label for="nuevoTelefono">Teléfono:</label>
+                    <input type="text" id="nuevoTelefono" v-model="nuevoUsuario.telefono" required>
+                </div>
+                <div class="controls">
+                    <label for="nuevaCompania">Compañía:</label>
+                    <input type="text" id="nuevaCompania" v-model="nuevoUsuario.compania" required>
+                </div>
+                <div class="controls">
+                    <label for="nuevaDireccion">Dirección:</label>
+                    <input type="text" id="nuevaDireccion" v-model="nuevoUsuario.direccion" required>
+                </div>
+                <button class="buttons" type="submit">{{ usuarioEditandoIndex !== -1 ? 'Guardar Cambios' : 'Agregar' }}</button>
+            </form>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.6.14/dist/vue.js"></script>
+    <script>
+        new Vue({
+            el: '#app',
+            data: {
+                usuario: {
+                    correo: '',
+                    contraseña: ''
+                },
+                mensaje: '',
+                usuarioLogueado: null,
+                usuarios: [],
+                nuevoUsuario: {
+                    correo: '',
+                    telefono: '',
+                    compania: '',
+                    direccion: ''
+                },
+                mostrarForm: false,
+                mostrarTabla: true,
+                usuarioEditandoIndex: -1,
+            },
+            created() {
+                fetch('usuarios.json')
+                    .then(response => response.json())
+                    .then(data => {
+                        this.usuarios = data.usuarios.map(usuario => ({
+                            correo: usuario.correo,
+                            contraseña: usuario.contraseña,
+                            telefono: usuario.telefono,
+                            compania: usuario.compania,
+                            direccion: usuario.direccion
+                        }));
+                    })
+                    .catch(error => console.error('Error al cargar usuarios:', error));
+
+                const usuarioGuardado = localStorage.getItem('usuario');
+                if (usuarioGuardado) {
+                    this.usuarioLogueado = usuarioGuardado;
+                }
+            },
+            methods: {
+                iniciarSesion() {
+                    const usuarioEncontrado = this.usuarios.find(user =>
+                        user.correo === this.usuario.correo && user.contraseña === this.usuario.contraseña
+                    );
+
+                    if (usuarioEncontrado) {
+                        this.mensaje = 'Inicio de sesión exitoso';
+                        localStorage.setItem('usuario', usuarioEncontrado.correo);
+                        this.usuarioLogueado = usuarioEncontrado.correo;
+                        this.usuario = { correo: '', contraseña: '' };
+                    } else {
+                        this.mensaje = 'Credenciales incorrectas';
+                    }
+                },
+                cerrarSesion() {
+                    localStorage.removeItem('usuario');
+                    this.usuarioLogueado = null;
+                    this.usuario = { correo: '', contraseña: '' };
+                    this.mensaje = '';
+                },
+                mostrarFormulario() {
+                    this.nuevoUsuario = {
+                        correo: '',
+                        telefono: '',
+                        compania: '',
+                        direccion: ''
+                    };
+                    this.usuarioEditandoIndex = -1;
+                    this.mostrarForm = true;
+                },
+                agregarUsuario() {
+                    this.usuarios.push({
+                        correo: this.nuevoUsuario.correo,
+                        telefono: this.nuevoUsuario.telefono,
+                        compania: this.nuevoUsuario.compania,
+                        direccion: this.nuevoUsuario.direccion
+                    });
+                    this.nuevoUsuario = {
+                        correo: '',
+                        telefono: '',
+                        compania: '',
+                        direccion: ''
+                    };
+                    this.mostrarForm = false;
+                },
+                toggleTabla() {
+                    this.mostrarTabla = !this.mostrarTabla;
+                },
+                editarUsuario(index) {
+                    this.nuevoUsuario = Object.assign({}, this.usuarios[index]);
+                    this.usuarioEditandoIndex = index;
+                    this.mostrarFormulario();
+                },
+                eliminarUsuario(index) {
+                    this.usuarios.splice(index, 1);
+                },
+                guardarEdicionUsuario() {
+                    if (this.usuarioEditandoIndex !== -1) {
+                        this.usuarios[this.usuarioEditandoIndex] = Object.assign({}, this.nuevoUsuario);
+                    } else {
+                        this.usuarios.push({
+                            correo: this.nuevoUsuario.correo,
+                            telefono: this.nuevoUsuario.telefono,
+                            compania: this.nuevoUsuario.compania,
+                            direccion: this.nuevoUsuario.direccion
+                        });
+                    }
+                    this.nuevoUsuario = {
+                        correo: '',
+                        telefono: '',
+                        compania: '',
+                        direccion: ''
+                    };
+                    this.usuarioEditandoIndex = -1;
+                    this.mostrarForm = false;
+                },
+            }
+        });
+    </script>
+</body>
+
+</html>

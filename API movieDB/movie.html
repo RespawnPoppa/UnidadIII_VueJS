@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Listado de Películas</title>
+</head>
+<body>
+    <button onclick="app.logout()">Cerrar Sesión</button>
+
+    <h2>Listado de Películas</h2>
+    <div id="app">
+        <ul>
+            <li v-for="movie in movies" :key="movie.id">
+                <a :href="'movieDetails.html?id=' + movie.id">
+                    <img :src="getImageUrl(movie.poster_path)" alt="Poster de la película">
+                    <p>{{ movie.title }}</p>
+                </a>
+            </li>
+        </ul>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.6.14/dist/vue.js"></script>
+    <script>
+        const app = new Vue({
+            el: "#app",
+            data: {
+                movies: [],
+                apiKey: "37b1002f1cbf77bd185d874922aeee70", // API
+            },
+            mounted() {
+                // Obtener la lista de películas populares
+                const url = "https://api.themoviedb.org/3/discover/movie?include_adult=false&include_video=false&language=en-US&page=1&sort_by=popularity.desc";
+                const requestOptions = {
+                    method: 'GET',
+                    redirect: 'follow',
+                };
+
+                fetch(url + `&api_key=${this.apiKey}`, requestOptions)
+                    .then(response => response.json())
+                    .then(data => {
+                        this.movies = data.results;
+                    })
+                    .catch(error => console.log('error', error));
+            },
+            methods: {
+                getImageUrl(posterPath) {
+                    if (posterPath) {
+                        return `https://image.tmdb.org/t/p/w500/${posterPath}`;
+                    }
+                    return "";
+                },
+                logout() {
+                    localStorage.removeItem("loggedIn");
+                    localStorage.removeItem("username");
+
+                    window.location.href = "index.html";
+                }
+            },
+        });
+    </script>
+</body>
+</html>

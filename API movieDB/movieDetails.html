@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Detalles de la Película</title>
+    <style>
+        /* Estilos para las estrellas */
+        .star-rating {
+            font-size: 2rem;
+            display: inline-block;
+        }
+
+        .star-rating::before {
+            content: "\2605";
+            color: #f5c518;
+        }
+
+        .star-rating.active::before {
+            color: #ffdb58;
+        }
+    </style>
+</head>
+<body>
+    <h2>Detalles de la Película</h2>
+    <div id="app">
+        <div v-if="movie">
+            <img :src="getImageUrl(movie.poster_path)" alt="Poster de la película">
+            <h3>{{ movie.original_title }}</h3>
+
+            <p>{{ movie.overview }}</p>
+
+            <p>Fecha de Lanzamiento: {{ movie.release_date }}</p>
+ 
+            <p>Voto Promedio: {{ movie.vote_average }}</p>
+
+            <div class="star-rating" v-for="star in 5" :class="{ 'active': star <= userRating }" @click="rateMovie(star)"></div>
+  
+            <button @click="removeRating">Eliminar Calificación</button>
+
+           
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.6.14/dist/vue.js"></script>
+    <script>
+        new Vue({
+            el: "#app",
+            data: {
+                movie: null,
+                userRating: 0, 
+                apiKey: "37b1002f1cbf77bd185d874922aeee70", 
+            },
+            mounted() {
+                const urlParams = new URLSearchParams(window.location.search);
+                const movieId = urlParams.get("id");
+
+                if (movieId) {
+                    const movieUrl = `https://api.themoviedb.org/3/movie/${movieId}?language=en-US&api_key=${this.apiKey}`;
+                    
+                    fetch(movieUrl)
+                        .then(response => response.json())
+                        .then(data => {
+                            this.movie = data;
+                        })
+                        .catch(error => console.log('error', error));
+                }
+            },
+            methods: {
+                getImageUrl(posterPath) {
+                    if (posterPath) {
+                        return `https://image.tmdb.org/t/p/w500/${posterPath}`;
+                    }
+                    return "";
+                },
+                rateMovie(star) {
+                    this.userRating = star;
+                    const ratingUrl = `https://api.themoviedb.org/3/movie/${this.movie.id}/rating?api_key=${this.apiKey}`;
+                    const raw = JSON.stringify({
+                        "value": this.userRating,
+                    });
+
+                    const requestOptions = {
+                        method: 'POST',
+                        body: raw,
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                    };
+
+                    fetch(ratingUrl, requestOptions)
+                        .then(response => response.json())
+                        .then(data => {
+                            console.log('Calificación enviada:', data);
+                        })
+                        .catch(error => console.error('Error al enviar la calificación:', error));
+                },
+                removeRating() {
+                    const ratingUrl = `https://api.themoviedb.org/3/movie/${this.movie.id}/rating?api_key=${this.apiKey}`;
+                    
+                    const requestOptions = {
+                        method: 'DELETE',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                    };
+
+                    fetch(ratingUrl, requestOptions)
+                        .then(response => response.json())
+                        .then(data => {
+                            console.log('Calificación eliminada:', data);
+                            this.userRating = 0;
+                        })
+                        .catch(error => console.error('Error al eliminar la calificación:', error));
+                },
+            },
+        });
+    </script>
+</body>
+</html>
